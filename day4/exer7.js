@@ -6,17 +6,36 @@ fs.readFile("input.txt", "utf8", (err, data) => {
   }
 
   data = data.toString().split("\n");
+  data = data.map((row, index) => {
+    if (index !== data.length - 1) {
+      return row.substring(0, row.length - 1);
+    }
+    return row;
+  });
 
   let cards = [];
-  // let card = {
-  //   id,
-  //   winningNumbers,
-  //   playingNumbers,
-  //   matchNumbers,
-  //   points,
-  // }
 
-  initialInfo(data)
+  initialInfo(data);
+  cards = cards.map(card => {
+    return {
+      ...card,
+      matchNumbers: checkMatch(card),
+    }
+  });
+
+  cards = cards.map(card => {
+    return {
+      ...card,
+      points: calculatePoints(card) >= 1 ? calculatePoints(card) : 0,
+    }
+  });
+
+  let totalPoints = 0;
+  cards.forEach(card => {
+    totalPoints += card.points;
+  })
+
+  console.log(totalPoints);
 
   /**
    * 
@@ -24,18 +43,41 @@ fs.readFile("input.txt", "utf8", (err, data) => {
    */
   function initialInfo(data) {
     data.forEach( game => {
-      let preTwoPoint = game.split(':')[0].split(' ');
-      let id = preTwoPoint[preTwoPoint.length - 1];
+      let firstSplit = game.split(':');
+
+      let leftTwoPoints = firstSplit[0].split(' ');
+      let id = leftTwoPoints[leftTwoPoints.length - 1];
+
+      let dirtyNumbers = firstSplit[1].split('|');
+      let dirtyWinningNumbers = dirtyNumbers[0].trim();
+      let dirtyPlayingNumbers = dirtyNumbers[1].trim();
+
+      let winningNumbers = dirtyWinningNumbers.split(' ').filter(number => number.length > 0);
+      let playingNumbers = dirtyPlayingNumbers.split(' ').filter(number => number.length > 0);
+
       let card = {
         id,
-        // winningNumbers,
+        winningNumbers,
+        playingNumbers,
       }
       cards.push(card)
-      console.log(card);
     })
-
   }
 
+  /**
+   * 
+   * @param {Array} cards.winningNumbers
+   * @param {Array} cards.playingNumbers
+   */
+  function checkMatch({ winningNumbers, playingNumbers }) {
+    return winningNumbers.filter( winningNumber => playingNumbers.includes(winningNumber));
+  }
 
-  // console.log(data);
+  /**
+   * 
+   * @param {Array} cards.matchNumbers
+   */
+  function calculatePoints({matchNumbers}) {
+    return Math.pow(2, matchNumbers.length - 1);
+  }
 });
