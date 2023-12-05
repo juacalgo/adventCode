@@ -1,17 +1,19 @@
 const fs = require("fs");
 
-fs.readFile("inputEx.txt", "utf8", (err, data) => {
+fs.readFile("input.txt", "utf8", (err, data) => {
   if (err) {
     return console.log(err);
   }
 
   data = data.toString().split("\n");
-  data = data.map((row, index) => {
-    if (index !== data.length - 1) {
-      return row.substring(0, row.length - 1);
-    }
-    return row;
-  });
+  // only for windows exec
+  // ---------------------------------->
+  // data = data.map((row, index) => {
+  //   if (index !== data.length - 1) {
+  //     return row.substring(0, row.length - 1);
+  //   }
+  //   return row;
+  // });
 
   let cards = [];
 
@@ -26,6 +28,11 @@ fs.readFile("inputEx.txt", "utf8", (err, data) => {
   cards.forEach(card => {
     calculateExtraCards(card);
   })
+
+  let totalCards = 0;
+  cards.forEach(card => totalCards += card.amount);
+
+  console.log(totalCards);
 
   /**
    * 
@@ -49,6 +56,7 @@ fs.readFile("inputEx.txt", "utf8", (err, data) => {
         id,
         winningNumbers,
         playingNumbers,
+        amount: 1,
       }
       cards.push(card)
     })
@@ -68,6 +76,15 @@ fs.readFile("inputEx.txt", "utf8", (err, data) => {
    * @param {Object} card 
    */
   function calculateExtraCards(card) {
-
+    for (let i = 0; i < card.amount; i++) {
+      for (let j = 0; j < card.matchNumbers.length; j++) {
+        let index = Number(card.id) + j;
+        amount = cards[index].amount + 1;
+        cards[index] = {
+          ...cards[index],
+          amount,
+        }
+      }
+    }
   }
 });
