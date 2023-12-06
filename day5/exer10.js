@@ -26,8 +26,11 @@ fs.readFile("input.txt", "utf8", (err, data) => {
    * @return {Object}
    */
   function cleanData(data) {
+    let preSeeds = data[0].split(':')[1].trim().split(' ');
+    let seeds = calculateWhichSeedsHave(preSeeds);
+
     let cleanInfo = {
-      seeds: data[0].split(':')[1].trim().split(' '),
+      seeds,
       seed_to_soil: data[1].split(':')[1].trim().split('\r\n'),
       soil_to_ferti: data[2].split(':')[1].trim().split('\r\n'),
       ferti_to_water: data[3].split(':')[1].trim().split('\r\n'),
@@ -140,5 +143,19 @@ fs.readFile("input.txt", "utf8", (err, data) => {
     }
 
     return seed;
+  }
+
+  /**
+   * 
+   * @param {[String]} preSeeds 
+   */
+  function calculateWhichSeedsHave(preSeeds) {
+    let seeds = [];
+    for (let i = 0; i < (preSeeds.length / 2); i++) {
+      for (let j = preSeeds[i * 2]; j < Number(preSeeds[i * 2]) + Number(preSeeds[i * 2 + 1]); j++) {
+        seeds.push(j);
+      }
+    }
+    return seeds;
   }
 });
